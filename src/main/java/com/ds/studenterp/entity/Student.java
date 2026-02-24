@@ -1,6 +1,7 @@
 package com.ds.studenterp.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -56,7 +57,10 @@ public class Student {
     private String department;
 
     @NotBlank(message = "Course Required!..")
-    private String course;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    @JsonIgnoreProperties("students")
+    private Course course;
 
     private LocalDateTime admissionDate;
 
