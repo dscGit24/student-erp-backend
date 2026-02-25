@@ -9,10 +9,10 @@ import java.util.List;
 @Service
 public class CourseService {
 
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
-    public CourseService(CourseRepository repository){
-        this.courseRepository = repository;
+    public CourseService(CourseRepository courseRepository){
+        this.courseRepository = courseRepository;
     }
 
     public List<Course> getAllCourses(){
@@ -35,9 +35,9 @@ public class CourseService {
         return courseRepository.save(existing);
     }
 
-    public void toggleCourseStatus(Long id){
+    public Course toggleCourseStatus(Long id){
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course NOT Found!.."));
         course.setActive(!course.getActive());
-        courseRepository.save(course);
+        return  courseRepository.save(course);
     }
 }

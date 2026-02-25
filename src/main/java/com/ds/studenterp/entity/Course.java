@@ -1,5 +1,6 @@
 package com.ds.studenterp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +30,11 @@ public class Course {
     private Boolean active = true;
 
     @OneToMany(mappedBy = "course")
+    @JsonIgnoreProperties("course")
     private List<Student> students;
+
+    @Transient
+    public int getStudentCount() {
+        return students != null ? students.size() : 0;
+    }
 }

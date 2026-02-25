@@ -34,11 +34,11 @@ public class StudentService {
         return studentRepository.findById(id).orElseThrow();
     }
 
-    public void deleteStudent(Long id){
+    public Student deleteStudent(Long id){
         Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student Not Found!.."));
         student.setDeleted(true);
         student.setDeletedAt(LocalDateTime.now());
-        studentRepository.save(student);
+        return studentRepository.save(student);
     }
     public long getTotalStudents(){
         return studentRepository.count();

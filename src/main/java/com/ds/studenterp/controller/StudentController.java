@@ -31,9 +31,9 @@ public class StudentController {
         return studentService.getStudentById(id);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable Long id){
-        studentService.deleteStudent(id);
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> deleteStudent(@PathVariable Long id){
+        return ResponseEntity.ok(studentService.deleteStudent(id));
     }
 
     @PutMapping("/{id}")
