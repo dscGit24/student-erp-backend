@@ -1,5 +1,6 @@
 package com.ds.studenterp.entity;
 
+import com.ds.studenterp.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Student {
+public class Student extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +57,7 @@ public class Student {
     @NotBlank(message = "Department Required!..")
     private String department;
 
-    @NotBlank(message = "Course Required!..")
+    @NotNull(message = "Course Required!..")
     @ManyToOne
     @JoinColumn(name = "course_id")
     @JsonIgnoreProperties("students")
@@ -83,26 +84,16 @@ public class Student {
 
 //  ================= AUDIT FIELDS ===============
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
-
     @Column(nullable = false)
-    private Boolean deleted = false;
+    private Boolean active = true;
 
 //  ================= AUTO TIMESTAMPS ===============
 
     @PrePersist
     protected void onCreate(){
-        createdAt = LocalDateTime.now();
         admissionDate = LocalDateTime.now();
-        if (deleted == null){
-            deleted = false;
+        if (active == null){
+            active = true;
         }
-    }
-
-    @PreUpdate
-    protected void onUpdate(){
-        updatedAt = LocalDateTime.now();
     }
 }

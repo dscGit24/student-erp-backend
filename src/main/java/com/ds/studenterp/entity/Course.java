@@ -33,8 +33,16 @@ public class Course {
     @JsonIgnoreProperties("course")
     private List<Student> students;
 
-    @Transient
-    public int getStudentCount() {
-        return students != null ? students.size() : 0;
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "course_faculty",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "faculty_id")
+    )
+    private List<Faculty> faculties;
+
+//    @Transient
+//    public int getStudentCount() {
+//        return students != null ? students.size() : 0;
+//    }
 }

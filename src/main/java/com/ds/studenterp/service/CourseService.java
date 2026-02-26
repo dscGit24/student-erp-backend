@@ -35,9 +35,22 @@ public class CourseService {
         return courseRepository.save(existing);
     }
 
-    public Course toggleCourseStatus(Long id){
-        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course NOT Found!.."));
-        course.setActive(!course.getActive());
-        return  courseRepository.save(course);
+    public Course toggleStatus(Long id) {
+
+        Course course = courseRepository.findById(id).orElseThrow();
+
+        if (course.getActive()) {
+            course.setActive(false);
+            course.setDeletedAt(LocalDateTime.now());
+            course.setDeletedBy("ADMIN");
+        } else {
+            course.setActive(true);
+            course.setDeletedAt(null);
+            course.setDeletedBy(null);
+        }
+
+        course.setUpdatedBy("ADMIN");
+
+        return courseRepository.save(course);
     }
 }
