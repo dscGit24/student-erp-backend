@@ -16,34 +16,38 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+//  =========== Add Student ===========
     @PostMapping
     public Student addStudent(@RequestBody Student student){
        return studentService.saveStudent(student);
     }
 
+//  =========== Fetch All Students ===========
     @GetMapping
     public List<Student> getAllStudents(){
         return studentService.getAllStudents();
     }
 
+//  =========== Fetch One Student ===========
     @GetMapping("/{id}")
     public Student getStudent(@PathVariable Long id){
         return studentService.getStudentById(id);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> deleteStudent(@PathVariable Long id){
-        return ResponseEntity.ok(studentService.deleteStudent(id));
+    //  =========== Update Student ===========
+    @PutMapping("/{id}")
+    public ResponseEntity<Student> updateStudent(
+            @PathVariable Long id,
+            @RequestBody Student updatedStudent) {
+
+        return ResponseEntity.ok(
+                studentService.updateStudent(id, updatedStudent)
+        );
     }
 
-    @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable Long id, @RequestBody Student updatedStudent){
-        return studentService.updateStudent(id, updatedStudent);
-//        try {
-//            return ResponseEntity.ok(studentService.updateStudent(id, updatedStudent));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
+//  =========== (Soft) Delete Student ===========
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Student> toggleStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.toggleStatus(id));
     }
 }

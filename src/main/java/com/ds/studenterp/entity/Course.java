@@ -1,5 +1,6 @@
 package com.ds.studenterp.entity;
 
+import com.ds.studenterp.audit.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,9 +11,10 @@ import java.util.List;
 
 @Entity
 @Data
+@Table(name = "courses")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Course {
+public class Course extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +28,10 @@ public class Course {
     private String duration;
 
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     private Boolean active = true;
 
@@ -41,8 +47,6 @@ public class Course {
     )
     private List<Faculty> faculties;
 
-//    @Transient
-//    public int getStudentCount() {
-//        return students != null ? students.size() : 0;
-//    }
+    @Transient
+    private Integer studentCount;
 }

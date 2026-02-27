@@ -1,39 +1,58 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.entity.Faculty;
 import com.ds.studenterp.service.FacultyService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import com.ds.studenterp.entity.Faculty;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/faculties")
-@CrossOrigin
 public class FacultyController {
 
-    @Autowired
-    private FacultyService facultyService;
+    private final FacultyService facultyService;
 
+    public FacultyController(FacultyService facultyService) {
+        this.facultyService = facultyService;
+    }
+
+    // ================= READ ALL =================
     @GetMapping
-    public List<Faculty> getAllFaculty() {
-        return facultyService.getAllFaculties();
+    public ResponseEntity<List<Faculty>> getAllFaculty() {
+        return ResponseEntity.ok(facultyService.getAllFaculties());
     }
 
+    // ================= READ ONE =================
+    @GetMapping("/{id}")
+    public ResponseEntity<Faculty> getFaculty(@PathVariable Long id) {
+        return ResponseEntity.ok(facultyService.getFacultyById(id));
+    }
+
+    // ================= CREATE =================
     @PostMapping
-    public Faculty addFaculty(@RequestBody Faculty faculty) {
-        return facultyService.addFaculty(faculty);
+    public ResponseEntity<Faculty> addFaculty(@RequestBody Faculty faculty) {
+        return ResponseEntity.ok(facultyService.addFaculty(faculty));
     }
 
+    // ================= UPDATE =================
     @PutMapping("/{id}")
-    public Faculty updateFaculty(@PathVariable Long id, @RequestBody Faculty updated) {
-        return facultyService.updateFaculty(id, updated);
+    public ResponseEntity<Faculty> updateFaculty(
+            @PathVariable Long id,
+            @RequestBody Faculty updated) {
+
+        return ResponseEntity.ok(
+                facultyService.updateFaculty(id, updated)
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteFaculty(@PathVariable Long id) {
-        facultyService.deleteFaculty(id);
+    // ================= SOFT DELETE (TOGGLE) =================
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Faculty> toggleStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                facultyService.toggleStatus(id)
+        );
     }
-
-
 }

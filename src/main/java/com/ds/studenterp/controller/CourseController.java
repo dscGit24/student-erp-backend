@@ -2,6 +2,7 @@ package com.ds.studenterp.controller;
 
 import com.ds.studenterp.entity.Course;
 import com.ds.studenterp.service.CourseService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,27 +15,44 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    public CourseController(CourseService courseService){
+    public CourseController(CourseService courseService) {
         this.courseService = courseService;
     }
 
+    // ================= READ ALL =================
     @GetMapping
-    public List<Course> getAllCourses(){
-        return courseService.getAllCourses();
+    public ResponseEntity<List<Course>> getAllCourses() {
+        return ResponseEntity.ok(courseService.getAllCourses());
     }
 
+    // ================= READ ONE =================
+    @GetMapping("/{id}")
+    public ResponseEntity<Course> getCourse(@PathVariable Long id) {
+        return ResponseEntity.ok(courseService.getCourseById(id));
+    }
+
+    // ================= CREATE =================
     @PostMapping
-    public Course addCourse(@RequestBody Course course){
-        return courseService.saveCourse(course);
+    public ResponseEntity<Course> addCourse(@RequestBody Course course) {
+        return ResponseEntity.ok(courseService.saveCourse(course));
     }
 
+    // ================= UPDATE =================
     @PutMapping("/{id}")
-    public Course updateCourse(@PathVariable Long id, @RequestBody Course course){
-        return courseService.updateCourse(id, course);
+    public ResponseEntity<Course> updateCourse(
+            @PathVariable Long id,
+            @RequestBody Course course) {
+
+        return ResponseEntity.ok(
+                courseService.updateCourse(id, course)
+        );
     }
 
+    // ================= SOFT DELETE (TOGGLE) =================
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> toggleCourseStatus(@PathVariable Long id){
-        return ResponseEntity.ok(courseService.toggleCourseStatus(id));
+    public ResponseEntity<Course> toggleCourseStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                courseService.toggleStatus(id)
+        );
     }
 }

@@ -1,30 +1,46 @@
 package com.ds.studenterp.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ds.studenterp.entity.Faculty;
+import com.ds.studenterp.repository.FacultyRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.ds.studenterp.entity.Faculty;
-import com.ds.studenterp.repository.FacultyRepository;
-
 @Service
 public class FacultyService {
 
-    @Autowired
-    private FacultyRepository facultyRepository;
+    private final FacultyRepository facultyRepository;
 
-    public List<Faculty> getAllFaculties() {
-        return facultyRepository.findAll();
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
     }
 
+    // ================= CREATE =================
     public Faculty addFaculty(Faculty faculty) {
+
+        faculty.setActive(true);
+        faculty.setCreatedBy("ADMIN");
+        faculty.setUpdatedBy("ADMIN");
+
         return facultyRepository.save(faculty);
     }
 
+    // ================= READ =================
+    public List<Faculty> getAllFaculties() {
+        return facultyRepository.findByActiveTrue();
+    }
+
+    public Faculty getFacultyById(Long id) {
+        return facultyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Faculty Not Found!.."));
+    }
+
+    // ================= UPDATE =================
     public Faculty updateFaculty(Long id, Faculty updated) {
-        Faculty faculty = facultyRepository.findById(id).orElseThrow();
+
+        Faculty faculty = getFacultyById(id);
 
         faculty.setFirstName(updated.getFirstName());
         faculty.setLastName(updated.getLastName());
@@ -32,24 +48,21 @@ public class FacultyService {
         faculty.setDepartment(updated.getDepartment());
         faculty.setPhone(updated.getPhone());
 
+        faculty.setUpdatedBy("ADMIN");
+
         return facultyRepository.save(faculty);
     }
 
-    public void deleteFaculty(Long id) {
-        facultyRepository.deleteById(id);
-    }
-
+    // ================= SOFT DELETE =================
     public Faculty toggleStatus(Long id) {
 
-        Faculty faculty = facultyRepository.findById(id).orElseThrow();
+        Faculty faculty = getFacultyById(id);
 
         if (faculty.getActive()) {
-            // SOFT DELETE
             faculty.setActive(false);
             faculty.setDeletedAt(LocalDateTime.now());
             faculty.setDeletedBy("ADMIN");
         } else {
-            // RESTORE
             faculty.setActive(true);
             faculty.setDeletedAt(null);
             faculty.setDeletedBy(null);

@@ -1,6 +1,10 @@
 package com.ds.studenterp.service;
 
+import com.ds.studenterp.entity.FeeStructure;
 import com.ds.studenterp.entity.Student;
+import com.ds.studenterp.entity.StudentFee;
+import com.ds.studenterp.repository.FeeStructureRepository;
+import com.ds.studenterp.repository.StudentFeeRepository;
 import com.ds.studenterp.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,12 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private FeeStructureRepository feeStructureRepository;
+
+    @Autowired
+    private StudentFeeRepository studentFeeRepository;
+
     // ================= CREATE =================
     @Transactional
     public Student saveStudent(Student student) {
@@ -29,12 +39,30 @@ public class StudentService {
         student.setCreatedBy("ADMIN");
         student.setUpdatedBy("ADMIN");
 
-        return studentRepository.save(student);
+        Student savedStudent = studentRepository.save(student);
+
+        // 🔥 AUTO CREATE FINANCE RECORD
+
+        FeeStructure feeStructure = feeStructureRepository
+                .findByCourse(savedStudent.getCourse())
+                .orElseThrow(() ->
+                        new RuntimeException("No fee structure found for course"));
+
+        StudentFee studentFee = new StudentFee();
+        studentFee.setStudent(savedStudent);
+        studentFee.setFeeStructure(feeStructure);
+        studentFee.setTotalAmount(feeStructure.getTotalAmount());
+        studentFee.setBalanceAmount(feeStructure.getTotalAmount());
+        studentFee.setStatus("PENDING");
+
+        studentFeeRepository.save(studentFee);
+
+        return savedStudent;
     }
 
     // ================= READ =================
     public List<Student> getAllStudents() {
-        return studentRepository.findByActiveTrue();
+        return studentRepository.findAll();
     }
 
     public Student getStudentById(Long id) {

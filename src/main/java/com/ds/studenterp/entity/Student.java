@@ -55,7 +55,9 @@ public class Student extends Auditable {
 //  ================= ACADEMIC ===============
 
     @NotBlank(message = "Department Required!..")
-    private String department;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
     @NotNull(message = "Course Required!..")
     @ManyToOne
