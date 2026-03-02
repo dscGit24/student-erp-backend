@@ -16,7 +16,7 @@ public class DepartmentService {
     }
 
     public List<Department> getAll() {
-        return repository.findAll();
+        return repository.findByActiveTrue();
     }
 
     public Department save(Department dept) {

@@ -1,7 +1,7 @@
 package com.ds.studenterp.entity;
 
 import com.ds.studenterp.audit.Auditable;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +33,7 @@ public class Faculty extends Auditable {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("faculties")
     private Department department;
     private String phone;
 

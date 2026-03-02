@@ -1,6 +1,7 @@
 package com.ds.studenterp.entity;
 
 import com.ds.studenterp.audit.Auditable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,7 +40,7 @@ public class Department extends Auditable {
     private List<Student> students;
 
     @OneToMany(mappedBy = "department")
-    @JsonManagedReference
+    @JsonIgnoreProperties("department")
     private List<Faculty> faculties;
 
     @OneToMany(mappedBy = "department")

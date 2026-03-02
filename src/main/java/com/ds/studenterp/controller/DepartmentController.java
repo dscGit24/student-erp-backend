@@ -1,5 +1,6 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.DepartmentResponse;
 import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.service.DepartmentService;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,11 @@ public class DepartmentController {
     }
 
     @GetMapping
-    public List<Department> getAll() {
-        return service.getAll();
+    public List<DepartmentResponse> getAll() {
+        return service.getAll()
+                .stream()
+                .map(DepartmentResponse::new)
+                .toList();
     }
 
     @PostMapping

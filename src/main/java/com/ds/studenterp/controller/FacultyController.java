@@ -1,5 +1,6 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.FacultyResponse;
 import com.ds.studenterp.entity.Faculty;
 import com.ds.studenterp.service.FacultyService;
 
@@ -21,8 +22,11 @@ public class FacultyController {
 
     // ================= READ ALL =================
     @GetMapping
-    public ResponseEntity<List<Faculty>> getAllFaculty() {
-        return ResponseEntity.ok(facultyService.getAllFaculties());
+    public List<FacultyResponse> getAllFaculty() {
+        return facultyService.getAllFaculties()
+                .stream()
+                .map(FacultyResponse::new)
+                .toList();
     }
 
     // ================= READ ONE =================

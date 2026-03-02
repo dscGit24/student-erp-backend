@@ -1,5 +1,6 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.StudentFeeResponse;
 import com.ds.studenterp.entity.StudentFee;
 import com.ds.studenterp.service.StudentFeeService;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,10 @@ public class StudentFeeController {
     }
 
     @GetMapping
-    public List<StudentFee> getAll() {
-        return service.getAll();
+    public List<StudentFeeResponse> getAll() {
+        return service.getAll()
+                .stream().map(StudentFeeResponse::new)
+                .toList();
     }
 
     @GetMapping("/{id}")

@@ -73,7 +73,7 @@ public class CourseService {
 
     public List<Course> getAllCourses() {
 
-        List<Course> courses = courseRepository.findAll();
+        List<Course> courses = courseRepository.findByActiveTrue();
 
         for (Course course : courses) {
             course.setStudentCount(

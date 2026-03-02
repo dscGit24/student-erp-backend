@@ -1,5 +1,6 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.StudentResponse;
 import com.ds.studenterp.entity.Student;
 import com.ds.studenterp.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,10 @@ public class StudentController {
 
 //  =========== Fetch All Students ===========
     @GetMapping
-    public List<Student> getAllStudents(){
-        return studentService.getAllStudents();
+    public List<StudentResponse> getAllStudents(){
+        return studentService.getAllStudents()
+                .stream().map(StudentResponse::new)
+                .toList();
     }
 
 //  =========== Fetch One Student ===========

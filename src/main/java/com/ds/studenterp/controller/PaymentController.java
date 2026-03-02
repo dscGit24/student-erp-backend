@@ -1,5 +1,6 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.PaymentResponse;
 import com.ds.studenterp.entity.Payment;
 import com.ds.studenterp.service.PaymentService;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +28,12 @@ public class PaymentController {
     }
 
     @GetMapping("/history/{studentFeeId}")
-    public List<Payment> getPaymentHistory(
+    public List<PaymentResponse> getPaymentHistory(
             @PathVariable Long studentFeeId) {
 
-        return service.getPaymentsByStudentFee(studentFeeId);
+        return service.getPaymentsByStudentFee(studentFeeId)
+                .stream().map(PaymentResponse::new)
+                .toList();
     }
 
     @GetMapping("/receipt/{paymentId}")
