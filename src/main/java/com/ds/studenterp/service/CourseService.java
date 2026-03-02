@@ -1,7 +1,11 @@
 package com.ds.studenterp.service;
 
+import com.ds.studenterp.dto.CourseRequest;
+import com.ds.studenterp.dto.CourseUpdateRequest;
 import com.ds.studenterp.entity.Course;
+import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.repository.CourseRepository;
+import com.ds.studenterp.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,14 +15,25 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final DepartmentRepository departmentRepository;
 
-    public CourseService(CourseRepository courseRepository) {
+    public CourseService(CourseRepository courseRepository, DepartmentRepository departmentRepository) {
         this.courseRepository = courseRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     // ================= CREATE =================
-    public Course saveCourse(Course course) {
+    public Course createCourse(CourseRequest request) {
 
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        Course course = new Course();
+        course.setCourseName(request.getCourseName());
+        course.setCourseCode(request.getCourseCode());
+        course.setDuration(request.getDuration());
+        course.setDescription(request.getDescription());
+        course.setDepartment(department);
         course.setActive(true);
         course.setCreatedBy("ADMIN");
         course.setUpdatedBy("ADMIN");
@@ -37,14 +52,20 @@ public class CourseService {
     }
 
     // ================= UPDATE =================
-    public Course updateCourse(Long id, Course updatedCourse) {
+    public Course updateCourse(Long id, CourseUpdateRequest request) {
 
         Course existing = getCourseById(id);
 
-        existing.setCourseName(updatedCourse.getCourseName());
-        existing.setDescription(updatedCourse.getDescription());
-        existing.setDuration(updatedCourse.getDuration());
-        existing.setCourseCode(updatedCourse.getCourseCode());
+        if (request.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+            existing.setDepartment(department);
+        }
+
+        existing.setCourseName(request.getCourseName());
+        existing.setDescription(request.getDescription());
+        existing.setDuration(request.getDuration());
+        existing.setCourseCode(request.getCourseCode());
 
         existing.setUpdatedBy("ADMIN");
 

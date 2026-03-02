@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/student-fees")
-@CrossOrigin
 public class StudentFeeController {
 
     private final StudentFeeService service;

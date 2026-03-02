@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fee-structures")
-@CrossOrigin
 public class FeeStructureController {
 
     private final FeeStructureService service;

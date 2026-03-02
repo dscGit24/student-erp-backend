@@ -1,13 +1,14 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.DepartmentRequest;
 import com.ds.studenterp.dto.DepartmentResponse;
+import com.ds.studenterp.dto.DepartmentUpdateRequest;
 import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.service.DepartmentService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/departments")
 public class DepartmentController {
@@ -27,8 +28,13 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public Department save(@RequestBody Department dept) {
-        return service.save(dept);
+    public Department save(@RequestBody DepartmentRequest request) {
+        return service.createDepartment(request);
+    }
+
+    @PutMapping("/{id}")
+    public Department update(@PathVariable Long id, @RequestBody DepartmentUpdateRequest request) {
+        return service.updateDepartment(id, request);
     }
 
     @PatchMapping("/{id}/status")

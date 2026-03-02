@@ -1,8 +1,14 @@
 package com.ds.studenterp.service;
 
+import com.ds.studenterp.dto.StudentRequest;
+import com.ds.studenterp.dto.StudentUpdateRequest;
+import com.ds.studenterp.entity.Course;
+import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.entity.FeeStructure;
 import com.ds.studenterp.entity.Student;
 import com.ds.studenterp.entity.StudentFee;
+import com.ds.studenterp.repository.CourseRepository;
+import com.ds.studenterp.repository.DepartmentRepository;
 import com.ds.studenterp.repository.FeeStructureRepository;
 import com.ds.studenterp.repository.StudentFeeRepository;
 import com.ds.studenterp.repository.StudentRepository;
@@ -26,7 +32,38 @@ public class StudentService {
     @Autowired
     private StudentFeeRepository studentFeeRepository;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
     // ================= CREATE =================
+    @Transactional
+    public Student createStudent(StudentRequest request) {
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        Student student = new Student();
+        student.setFirstName(request.getFirstName());
+        student.setLastName(request.getLastName());
+        student.setEmail(request.getEmail());
+        student.setPhone(request.getPhone());
+        student.setAadharNumber(request.getAadharNumber());
+        student.setDepartment(department);
+        student.setCourse(course);
+        student.setDateOfBirth(request.getDateOfBirth());
+        student.setGender(request.getGender());
+        student.setAddress(request.getAddress());
+        student.setPhoto(request.getPhoto());
+
+        return saveStudent(student);
+    }
+
     @Transactional
     public Student saveStudent(Student student) {
 
@@ -72,22 +109,28 @@ public class StudentService {
     }
 
     // ================= UPDATE =================
-    public Student updateStudent(Long id, Student updatedStudent) {
+    public Student updateStudent(Long id, StudentUpdateRequest request) {
 
         Student existing = getStudentById(id);
 
-        existing.setFirstName(updatedStudent.getFirstName());
-        existing.setLastName(updatedStudent.getLastName());
-        existing.setEmail(updatedStudent.getEmail());
-        existing.setPhone(updatedStudent.getPhone());
-        existing.setCourse(updatedStudent.getCourse());
-        existing.setDepartment(updatedStudent.getDepartment());
-        existing.setAddress(updatedStudent.getAddress());
-        existing.setAadharNumber(updatedStudent.getAadharNumber());
-        existing.setGender(updatedStudent.getGender());
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
 
-        if (updatedStudent.getPhoto() != null) {
-            existing.setPhoto(updatedStudent.getPhoto());
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        existing.setFirstName(request.getFirstName());
+        existing.setLastName(request.getLastName());
+        existing.setEmail(request.getEmail());
+        existing.setPhone(request.getPhone());
+        existing.setCourse(course);
+        existing.setDepartment(department);
+        existing.setAddress(request.getAddress());
+        existing.setAadharNumber(request.getAadharNumber());
+        existing.setGender(request.getGender());
+
+        if (request.getPhoto() != null) {
+            existing.setPhoto(request.getPhoto());
         }
 
         existing.setUpdatedBy("ADMIN");

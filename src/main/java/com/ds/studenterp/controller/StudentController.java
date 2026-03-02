@@ -1,6 +1,8 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.StudentRequest;
 import com.ds.studenterp.dto.StudentResponse;
+import com.ds.studenterp.dto.StudentUpdateRequest;
 import com.ds.studenterp.entity.Student;
 import com.ds.studenterp.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "https://localhost:5173")
 @RestController
 @RequestMapping("/api/students")
 public class StudentController {
@@ -19,8 +20,8 @@ public class StudentController {
 
 //  =========== Add Student ===========
     @PostMapping
-    public Student addStudent(@RequestBody Student student){
-       return studentService.saveStudent(student);
+    public Student addStudent(@RequestBody StudentRequest request){
+       return studentService.createStudent(request);
     }
 
 //  =========== Fetch All Students ===========
@@ -41,10 +42,10 @@ public class StudentController {
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(
             @PathVariable Long id,
-            @RequestBody Student updatedStudent) {
+            @RequestBody StudentUpdateRequest request) {
 
         return ResponseEntity.ok(
-                studentService.updateStudent(id, updatedStudent)
+                studentService.updateStudent(id, request)
         );
     }
 

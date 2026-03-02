@@ -1,6 +1,8 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.FacultyRequest;
 import com.ds.studenterp.dto.FacultyResponse;
+import com.ds.studenterp.dto.FacultyUpdateRequest;
 import com.ds.studenterp.entity.Faculty;
 import com.ds.studenterp.service.FacultyService;
 
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/faculties")
 public class FacultyController {
@@ -37,18 +38,20 @@ public class FacultyController {
 
     // ================= CREATE =================
     @PostMapping
-    public ResponseEntity<Faculty> addFaculty(@RequestBody Faculty faculty) {
-        return ResponseEntity.ok(facultyService.addFaculty(faculty));
+    public ResponseEntity<?> createFaculty(@RequestBody FacultyRequest request) {
+
+        Faculty faculty = facultyService.createFaculty(request);
+        return ResponseEntity.ok(faculty);
     }
 
     // ================= UPDATE =================
     @PutMapping("/{id}")
     public ResponseEntity<Faculty> updateFaculty(
             @PathVariable Long id,
-            @RequestBody Faculty updated) {
+            @RequestBody FacultyUpdateRequest request) {
 
         return ResponseEntity.ok(
-                facultyService.updateFaculty(id, updated)
+                facultyService.updateFaculty(id, request)
         );
     }
 

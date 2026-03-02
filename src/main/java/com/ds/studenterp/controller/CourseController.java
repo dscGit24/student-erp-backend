@@ -1,6 +1,8 @@
 package com.ds.studenterp.controller;
 
+import com.ds.studenterp.dto.CourseRequest;
 import com.ds.studenterp.dto.CourseResponse;
+import com.ds.studenterp.dto.CourseUpdateRequest;
 import com.ds.studenterp.entity.Course;
 import com.ds.studenterp.service.CourseService;
 
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
@@ -36,18 +37,18 @@ public class CourseController {
 
     // ================= CREATE =================
     @PostMapping
-    public ResponseEntity<Course> addCourse(@RequestBody Course course) {
-        return ResponseEntity.ok(courseService.saveCourse(course));
+    public ResponseEntity<Course> addCourse(@RequestBody CourseRequest request) {
+        return ResponseEntity.ok(courseService.createCourse(request));
     }
 
     // ================= UPDATE =================
     @PutMapping("/{id}")
     public ResponseEntity<Course> updateCourse(
             @PathVariable Long id,
-            @RequestBody Course course) {
+            @RequestBody CourseUpdateRequest request) {
 
         return ResponseEntity.ok(
-                courseService.updateCourse(id, course)
+                courseService.updateCourse(id, request)
         );
     }
 

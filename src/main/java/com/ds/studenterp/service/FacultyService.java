@@ -1,6 +1,10 @@
 package com.ds.studenterp.service;
 
+import com.ds.studenterp.dto.FacultyRequest;
+import com.ds.studenterp.dto.FacultyUpdateRequest;
+import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.entity.Faculty;
+import com.ds.studenterp.repository.DepartmentRepository;
 import com.ds.studenterp.repository.FacultyRepository;
 
 import org.springframework.stereotype.Service;
@@ -12,19 +16,11 @@ import java.util.List;
 public class FacultyService {
 
     private final FacultyRepository facultyRepository;
+    private final DepartmentRepository departmentRepository;
 
-    public FacultyService(FacultyRepository facultyRepository) {
+    public FacultyService(FacultyRepository facultyRepository, DepartmentRepository departmentRepository) {
         this.facultyRepository = facultyRepository;
-    }
-
-    // ================= CREATE =================
-    public Faculty addFaculty(Faculty faculty) {
-
-        faculty.setActive(true);
-        faculty.setCreatedBy("ADMIN");
-        faculty.setUpdatedBy("ADMIN");
-
-        return facultyRepository.save(faculty);
+        this.departmentRepository = departmentRepository;
     }
 
     // ================= READ =================
@@ -38,15 +34,19 @@ public class FacultyService {
     }
 
     // ================= UPDATE =================
-    public Faculty updateFaculty(Long id, Faculty updated) {
+    public Faculty updateFaculty(Long id, FacultyUpdateRequest request) {
 
         Faculty faculty = getFacultyById(id);
 
-        faculty.setFirstName(updated.getFirstName());
-        faculty.setLastName(updated.getLastName());
-        faculty.setEmail(updated.getEmail());
-        faculty.setDepartment(updated.getDepartment());
-        faculty.setPhone(updated.getPhone());
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        faculty.setFirstName(request.getFirstName());
+        faculty.setLastName(request.getLastName());
+        faculty.setEmail(request.getEmail());
+        faculty.setDepartment(department);
+        faculty.setPhone(request.getPhone());
+        faculty.setExperience(request.getExperience());
 
         faculty.setUpdatedBy("ADMIN");
 
@@ -69,6 +69,23 @@ public class FacultyService {
         }
 
         faculty.setUpdatedBy("ADMIN");
+
+        return facultyRepository.save(faculty);
+    }
+
+    public Faculty createFaculty(FacultyRequest request) {
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        Faculty faculty = new Faculty();
+        faculty.setFirstName(request.getFirstName());
+        faculty.setLastName(request.getLastName());
+        faculty.setEmail(request.getEmail());
+        faculty.setPhone(request.getPhone());
+        faculty.setExperience(request.getExperience());
+        faculty.setActive(request.getActive());
+        faculty.setDepartment(department);
 
         return facultyRepository.save(faculty);
     }
