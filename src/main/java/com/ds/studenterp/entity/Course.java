@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "courses")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +33,7 @@ public class Course extends Auditable {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
+    @JsonIgnoreProperties({"students", "courses", "faculties"})
     private Department department;
 
     private Boolean active = true;

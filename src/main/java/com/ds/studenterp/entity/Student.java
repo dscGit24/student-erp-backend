@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "students")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student extends Auditable {
@@ -57,6 +59,7 @@ public class Student extends Auditable {
 //    @NotBlank(message = "Department Required!..")
     @ManyToOne
     @JoinColumn(name = "department_id")
+    @JsonIgnoreProperties({"students", "courses", "faculties"})
     private Department department;
 
     @NotNull(message = "Course Required!..")

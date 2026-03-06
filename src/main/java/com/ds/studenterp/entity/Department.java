@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "departments")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Department extends Auditable {
@@ -37,6 +38,7 @@ public class Department extends Auditable {
 
     // Relationships
     @OneToMany(mappedBy = "department")
+    @JsonIgnoreProperties("department")
     private List<Student> students;
 
     @OneToMany(mappedBy = "department")
@@ -44,5 +46,6 @@ public class Department extends Auditable {
     private List<Faculty> faculties;
 
     @OneToMany(mappedBy = "department")
+    @JsonIgnoreProperties("department")
     private List<Course> courses;
 }

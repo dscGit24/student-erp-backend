@@ -11,8 +11,8 @@ public class FacultyResponse {
     private String lastName;
     private String email;
     private String phone;
-    private int experience;
-    private boolean active;
+    private Integer experience;
+    private Boolean active;
 
     private Long departmentId;
     private String departmentName;

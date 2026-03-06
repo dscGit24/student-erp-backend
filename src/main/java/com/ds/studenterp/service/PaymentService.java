@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import java.io.ByteArrayOutputStream;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class PaymentService {
                 .orElseThrow(() ->
                         new RuntimeException("Student fee record not found"));
 
-        // 🔥 Generate Receipt
+        // Generate Receipt
         long count = paymentRepository.count() + 1;
         String receipt = "RCPT" +
                 LocalDate.now().getYear() +
@@ -40,10 +39,11 @@ public class PaymentService {
         payment.setReceiptNumber(receipt);
         payment.setPaymentDate(LocalDate.now());
         payment.setStudentFee(fee);
+        payment.setActive(true);
 
         Payment savedPayment = paymentRepository.save(payment);
 
-        // 🔥 Update StudentFee
+        // Update StudentFee
         double newPaid = fee.getAmountPaid() + payment.getAmountPaid();
         fee.setAmountPaid(newPaid);
 
@@ -88,69 +88,94 @@ public class PaymentService {
             return os.toByteArray();
 
         } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
+            e.printStackTrace();
+            throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
         }
     }
 
     private String buildReceiptHtml(Payment payment) {
 
-        return """
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial; padding: 20px; }
-                .header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-                .box { border: 1px solid #000; padding: 15px; }
-                table { width: 100%; border-collapse: collapse; }
-                td { padding: 8px; }
-                .label { font-weight: bold; width: 40%; }
-            </style>
-        </head>
-        <body>
+        // Safe getters with null checks
+        String receiptNumber = payment.getReceiptNumber() != null ? payment.getReceiptNumber() : "N/A";
 
-            <div class='header'>STUDENT ERP - PAYMENT RECEIPT</div>
+        String studentName = "N/A";
+        String courseName = "N/A";
 
-            <div class='box'>
-                <table>
-                    <tr>
-                        <td class='label'>Receipt No:</td>
-                        <td>%s</td>
-                    </tr>
-                    <tr>
-                        <td class='label'>Student:</td>
-                        <td>%s %s</td>
-                    </tr>
-                    <tr>
-                        <td class='label'>Course:</td>
-                        <td>%s</td>
-                    </tr>
-                    <tr>
-                        <td class='label'>Amount Paid:</td>
-                        <td>₹ %s</td>
-                    </tr>
-                    <tr>
-                        <td class='label'>Payment Mode:</td>
-                        <td>%s</td>
-                    </tr>
-                    <tr>
-                        <td class='label'>Payment Date:</td>
-                        <td>%s</td>
-                    </tr>
-                </table>
-            </div>
+        if (payment.getStudentFee() != null) {
+            if (payment.getStudentFee().getStudent() != null) {
+                String firstName = payment.getStudentFee().getStudent().getFirstName() != null ?
+                        payment.getStudentFee().getStudent().getFirstName() : "";
+                String lastName = payment.getStudentFee().getStudent().getLastName() != null ?
+                        payment.getStudentFee().getStudent().getLastName() : "";
+                studentName = (firstName + " " + lastName).trim();
+                if (studentName.isEmpty()) studentName = "N/A";
+            }
 
-            <p style="margin-top:40px;">Thank you for your payment.</p>
+            if (payment.getStudentFee().getFeeStructure() != null &&
+                    payment.getStudentFee().getFeeStructure().getCourse() != null) {
+                courseName = payment.getStudentFee().getFeeStructure().getCourse().getCourseName() != null ?
+                        payment.getStudentFee().getFeeStructure().getCourse().getCourseName() : "N/A";
+            }
+        }
 
-        </body>
-        </html>
-        """.formatted(
-                payment.getReceiptNumber(),
-                payment.getStudentFee().getStudent().getFirstName(),
-                payment.getStudentFee().getStudent().getLastName(),
-                payment.getStudentFee().getFeeStructure().getCourse().getCourseName(),
-                payment.getAmountPaid(),
-                payment.getPaymentMode(),
-                payment.getPaymentDate()
+        Double amountPaid = payment.getAmountPaid() != null ? payment.getAmountPaid() : 0.0;
+        String paymentMode = payment.getPaymentMode() != null ? payment.getPaymentMode() : "N/A";
+        String paymentDate = payment.getPaymentDate() != null ? payment.getPaymentDate().toString() : LocalDate.now().toString();
+
+        String html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8" />
+        <style>
+            body { font-family: Arial, sans-serif; padding: 30px; margin: 0; color: #333; }
+            .header { font-size: 24px; font-weight: bold; color: #2f5d62; margin-bottom: 30px; border-bottom: 2px solid #2f5d62; padding-bottom: 10px; }
+            .box { border: 1px solid #ddd; border-radius: 8px; padding: 20px; background-color: #f9f9f9; }
+            table { width: 100%%; border-collapse: collapse; }
+            td { padding: 12px; border-bottom: 1px solid #eee; }
+            .label { font-weight: bold; width: 40%%; color: #555; }
+            .value { color: #000; }
+            .amount { font-size: 18px; font-weight: bold; color: #2f5d62; }
+            .footer { margin-top: 40px; text-align: center; color: #777; font-size: 14px; border-top: 1px dashed #ddd; padding-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class='header'>STUDENT ERP - PAYMENT RECEIPT</div>
+        <div class='box'>
+            <table>
+                <tr><td class='label'>Receipt No:</td><td class='value'>%s</td></tr>
+                <tr><td class='label'>Student:</td><td class='value'>%s</td></tr>
+                <tr><td class='label'>Course:</td><td class='value'>%s</td></tr>
+                <tr><td class='label'>Amount Paid:</td><td class='value amount'>₹ %,.2f</td></tr>
+                <tr><td class='label'>Payment Mode:</td><td class='value'>%s</td></tr>
+                <tr><td class='label'>Payment Date:</td><td class='value'>%s</td></tr>
+            </table>
+        </div>
+        <div class='footer'>
+            <p>Thank you for your payment. This is a system generated receipt.</p>
+            <p>For any queries, please contact the finance department.</p>
+        </div>
+    </body>
+    </html>
+    """.formatted(
+                escapeHtml(receiptNumber),
+                escapeHtml(studentName),
+                escapeHtml(courseName),
+                amountPaid,
+                escapeHtml(paymentMode),
+                escapeHtml(paymentDate)
         );
+
+        return html;
+    }
+
+    // Helper method to escape HTML special characters
+    private String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }

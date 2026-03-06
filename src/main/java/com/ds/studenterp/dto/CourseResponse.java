@@ -11,7 +11,7 @@ public class CourseResponse {
     private String courseCode;
     private String duration;
     private String description;
-    private boolean active;
+    private Boolean active;
 
     private Long departmentId;
     private String departmentName;

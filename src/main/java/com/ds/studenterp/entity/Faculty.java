@@ -7,12 +7,14 @@ import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "faculties")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,7 +40,7 @@ public class Faculty extends Auditable {
     private String phone;
 
     private Integer experience; // years
-    private Boolean active;
+    private Boolean active = true;
 
     @ManyToMany(mappedBy = "faculties")
     @JsonIgnore

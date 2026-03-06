@@ -86,6 +86,8 @@ public class FacultyService {
         faculty.setExperience(request.getExperience());
         faculty.setActive(request.getActive());
         faculty.setDepartment(department);
+        faculty.setCreatedBy("ADMIN");
+        faculty.setUpdatedBy("ADMIN");
 
         return facultyRepository.save(faculty);
     }

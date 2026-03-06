@@ -10,7 +10,7 @@ public class DepartmentResponse {
     private String name;
     private String code;
     private String description;
-    private boolean active;
+    private Boolean active;
 
     private Long hodId;
     private String hodName;
