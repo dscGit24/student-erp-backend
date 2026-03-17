@@ -7,6 +7,7 @@ import com.ds.studenterp.entity.Department;
 import com.ds.studenterp.repository.CourseRepository;
 import com.ds.studenterp.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,10 +24,11 @@ public class CourseService {
     }
 
     // ================= CREATE =================
+    @Transactional
     public Course createCourse(CourseRequest request) {
 
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new RuntimeException("Department not found with id: " + request.getDepartmentId()));
 
         Course course = new Course();
         course.setCourseName(request.getCourseName());
@@ -34,7 +36,7 @@ public class CourseService {
         course.setDuration(request.getDuration());
         course.setDescription(request.getDescription());
         course.setDepartment(department);
-        course.setActive(true);
+        course.setActive(true); // New courses are active by default
         course.setCreatedBy("ADMIN");
         course.setUpdatedBy("ADMIN");
 
@@ -42,30 +44,45 @@ public class CourseService {
     }
 
     // ================= READ =================
-//    public List<Course> getAllCourses() {
-//        return courseRepository.findByActiveTrue();
-//    }
-
     public Course getCourseById(Long id) {
         return courseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Course NOT Found!.."));
+                .orElseThrow(() -> new RuntimeException("Course NOT Found with id: " + id));
     }
 
     // ================= UPDATE =================
+    @Transactional
     public Course updateCourse(Long id, CourseUpdateRequest request) {
 
         Course existing = getCourseById(id);
 
+        // Update department if provided
         if (request.getDepartmentId() != null) {
             Department department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Department not found"));
+                    .orElseThrow(() -> new RuntimeException("Department not found with id: " + request.getDepartmentId()));
             existing.setDepartment(department);
         }
 
-        existing.setCourseName(request.getCourseName());
-        existing.setDescription(request.getDescription());
-        existing.setDuration(request.getDuration());
-        existing.setCourseCode(request.getCourseCode());
+        // Update basic fields
+        if (request.getCourseName() != null) {
+            existing.setCourseName(request.getCourseName());
+        }
+
+        if (request.getCourseCode() != null) {
+            existing.setCourseCode(request.getCourseCode());
+        }
+
+        if (request.getDescription() != null) {
+            existing.setDescription(request.getDescription());
+        }
+
+        if (request.getDuration() != null) {
+            existing.setDuration(request.getDuration());
+        }
+
+        // 🔥 FIX: Update active status if provided
+        if (request.getActive() != null) {
+            existing.setActive(request.getActive());
+        }
 
         existing.setUpdatedBy("ADMIN");
 
@@ -73,15 +90,18 @@ public class CourseService {
     }
 
     // ================= SOFT DELETE =================
+    @Transactional
     public Course toggleStatus(Long id) {
 
         Course course = getCourseById(id);
 
         if (course.getActive()) {
+            // SOFT DELETE
             course.setActive(false);
             course.setDeletedAt(LocalDateTime.now());
             course.setDeletedBy("ADMIN");
         } else {
+            // RESTORE
             course.setActive(true);
             course.setDeletedAt(null);
             course.setDeletedBy(null);
@@ -92,9 +112,10 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
+    // ================= GET ALL COURSES WITH STUDENT COUNT =================
     public List<Course> getAllCourses() {
 
-        List<Course> courses = courseRepository.findByActiveTrue();
+        List<Course> courses = courseRepository.findAll();
 
         for (Course course : courses) {
             course.setStudentCount(
@@ -105,5 +126,10 @@ public class CourseService {
         }
 
         return courses;
+    }
+
+    // ================= GET ACTIVE COURSES ONLY =================
+    public List<Course> getActiveCourses() {
+        return courseRepository.findByActiveTrue();
     }
 }

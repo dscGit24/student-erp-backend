@@ -22,7 +22,7 @@ public class DepartmentService {
     }
 
     public List<Department> getAll() {
-        return repository.findByActiveTrue();
+        return repository.findAll();
     }
 
     public Department createDepartment(DepartmentRequest request) {

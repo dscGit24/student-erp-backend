@@ -60,6 +60,7 @@ public class StudentService {
         student.setGender(request.getGender());
         student.setAddress(request.getAddress());
         student.setPhoto(request.getPhoto());
+        student.setAdmissionDate(LocalDateTime.now()); // Set admission date
 
         return saveStudent(student);
     }
@@ -79,20 +80,26 @@ public class StudentService {
         Student savedStudent = studentRepository.save(student);
 
         // 🔥 AUTO CREATE FINANCE RECORD
+        try {
+            FeeStructure feeStructure = feeStructureRepository
+                    .findByCourse(savedStudent.getCourse())
+                    .orElseThrow(() ->
+                            new RuntimeException("No fee structure found for course: " + savedStudent.getCourse().getCourseName()));
 
-        FeeStructure feeStructure = feeStructureRepository
-                .findByCourse(savedStudent.getCourse())
-                .orElseThrow(() ->
-                        new RuntimeException("No fee structure found for course"));
+            StudentFee studentFee = new StudentFee();
+            studentFee.setStudent(savedStudent);
+            studentFee.setFeeStructure(feeStructure);
+            studentFee.setTotalAmount(feeStructure.getTotalAmount());
+            studentFee.setAmountPaid(0.0);
+            studentFee.setBalanceAmount(feeStructure.getTotalAmount());
+            studentFee.setStatus("PENDING");
+            studentFee.setActive(true);
 
-        StudentFee studentFee = new StudentFee();
-        studentFee.setStudent(savedStudent);
-        studentFee.setFeeStructure(feeStructure);
-        studentFee.setTotalAmount(feeStructure.getTotalAmount());
-        studentFee.setBalanceAmount(feeStructure.getTotalAmount());
-        studentFee.setStatus("PENDING");
-
-        studentFeeRepository.save(studentFee);
+            studentFeeRepository.save(studentFee);
+        } catch (Exception e) {
+            // Log error but don't fail student creation
+            System.err.println("Warning: Could not create student fee record: " + e.getMessage());
+        }
 
         return savedStudent;
     }
@@ -104,11 +111,12 @@ public class StudentService {
 
     public Student getStudentById(Long id) {
         return studentRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Student Not Found!..")
+                () -> new RuntimeException("Student Not Found with id: " + id)
         );
     }
 
     // ================= UPDATE =================
+    @Transactional
     public Student updateStudent(Long id, StudentUpdateRequest request) {
 
         Student existing = getStudentById(id);
@@ -119,18 +127,29 @@ public class StudentService {
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
+        // Update basic info
         existing.setFirstName(request.getFirstName());
         existing.setLastName(request.getLastName());
         existing.setEmail(request.getEmail());
         existing.setPhone(request.getPhone());
+        existing.setAadharNumber(request.getAadharNumber());
         existing.setCourse(course);
         existing.setDepartment(department);
-        existing.setAddress(request.getAddress());
-        existing.setAadharNumber(request.getAadharNumber());
         existing.setGender(request.getGender());
+        existing.setAddress(request.getAddress());
 
-        if (request.getPhoto() != null) {
+        // Update dateOfBirth if present
+        if (request.getDateOfBirth() != null) {
+            existing.setDateOfBirth(request.getDateOfBirth());
+        }
+
+        // Update photo if present
+        if (request.getPhoto() != null && !request.getPhoto().isEmpty()) {
             existing.setPhoto(request.getPhoto());
+        }
+
+        if (request.getActive() != null) {
+            existing.setActive(request.getActive());
         }
 
         existing.setUpdatedBy("ADMIN");
@@ -138,7 +157,8 @@ public class StudentService {
         return studentRepository.save(existing);
     }
 
-    // ================= SOFT DELETE =================
+    // ================= SOFT DELETE / TOGGLE STATUS =================
+    @Transactional
     public Student toggleStatus(Long id) {
 
         Student student = getStudentById(id);
@@ -163,5 +183,9 @@ public class StudentService {
     // ================= STATS =================
     public long getTotalStudents() {
         return studentRepository.count();
+    }
+
+    public long getActiveStudents() {
+        return studentRepository.countByActiveTrue();
     }
 }

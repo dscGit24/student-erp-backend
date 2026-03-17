@@ -25,7 +25,7 @@ public class FacultyService {
 
     // ================= READ =================
     public List<Faculty> getAllFaculties() {
-        return facultyRepository.findByActiveTrue();
+        return facultyRepository.findAll();
     }
 
     public Faculty getFacultyById(Long id) {

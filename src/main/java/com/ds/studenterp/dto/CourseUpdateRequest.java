@@ -10,4 +10,5 @@ public class CourseUpdateRequest {
     private String duration;
     private String description;
     private Long departmentId;
+    private Boolean active;
 }
